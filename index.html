@@ -6,7 +6,7 @@
     <style>
         /* Canvas en pantalla completa y fondo negro */
         body, html {
-            cursor: pointer;
+            cursor: none;
             user-select: none;
             margin: 0;
             padding: 0;
@@ -42,7 +42,6 @@
         Tu navegador no soporta la etiqueta de audio.
     </audio>
 
-    
     <script>
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
@@ -62,8 +61,9 @@
         const radiusIncrement = 0.75;
         const maxIterations = 1500;
 
-        // Variables para rotación
+        // Variables para rotación automática
         let rotationAngle = 0;
+        let rotationSpeed = 0.01; // Velocidad inicial de rotación
 
         // Dibujar espiral con efecto neón
         function drawSpiral() {
@@ -99,19 +99,22 @@
             ctx.restore();
         }
 
-        // Rotación con el movimiento del mouse
-        canvas.addEventListener('mousemove', (event) => {
-            const rect = canvas.getBoundingClientRect();
-            const mouseX = event.clientX - rect.left;
-            const mouseY = event.clientY - rect.top;
-            const dx = mouseX - canvas.width / 2;
-            const dy = mouseY - canvas.height / 2;
-            rotationAngle = Math.atan2(dy, dx);
-            drawSpiral();
-        });
+        // Función de rotación automática y aumento de velocidad
+        function updateRotation() {
+            rotationAngle += rotationSpeed;
+            rotationSpeed *= 1.01; // Aumentar la velocidad gradualmente
 
-        // Dibuja el espiral inicialmente
-        drawSpiral();
+            // Limitar la velocidad de rotación para evitar que sea demasiado rápida
+            if (rotationSpeed > 0.2) {
+                rotationSpeed = 0.2;
+            }
+
+            drawSpiral();
+            requestAnimationFrame(updateRotation);
+        }
+
+        // Iniciar la rotación automática
+        updateRotation();
 
         // Lista de frases aleatorias
         const phrases = [
@@ -146,6 +149,12 @@
         setInterval(() => {
             showRandomPhrase();
         }, 15000);
+
+        // Reproducir audio cuando el usuario haga clic en la pantalla
+        document.body.addEventListener('click', () => {
+            const audio = document.getElementById('background-audio');
+            audio.play();  // Reproduce el audio
+        });
     </script>
 </body>
 </html>
