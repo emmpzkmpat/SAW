@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Espiral Neón con Frases Aleatorias</title>
+    <style>
+        /* Canvas en pantalla completa y fondo negro */
+        body, html {
+            cursor: pointer;
+            user-select: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            width: 100vw;
+            position: relative;
+        }
+        canvas {
+            width: 100vw;
+            height: 100vh;
+            display: block;
+        }
+        /* Estilo para las frases */
+        .phrase {
+            position: absolute;
+            font-size: 2em;
+            color: rgba(255, 0, 0, 0.8); /* Rojo con un toque transparente */
+            font-family: Arial, sans-serif;
+            text-shadow: 0 0 8px rgba(255, 0, 0, 0.8); /* Efecto de neón */
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+
+    <audio id="background-audio" loop autoplay>
+        <source src="RISASONIDO.mp3" type="audio/mp3">
+        Tu navegador no soporta la etiqueta de audio.
+    </audio>
+
+    
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Ajustar el tamaño del canvas al tamaño de la ventana
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Variables para el espiral
+        let angle = 0;
+        let radius = 5;
+        const angleIncrement = -0.1;
+        const radiusIncrement = 0.75;
+        const maxIterations = 1500;
+
+        // Variables para rotación
+        let rotationAngle = 0;
+
+        // Dibujar espiral con efecto neón
+        function drawSpiral() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.save();
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            ctx.rotate(rotationAngle);
+            ctx.translate(-canvas.width / 2, -canvas.height / 2);
+
+            const gradient = ctx.createRadialGradient(canvas.width / 2, canvas.height / 2, 0, canvas.width / 2, canvas.height / 2, radius * 1.5);
+            gradient.addColorStop(0.8, 'rgba(255, 0, 0, 1)');
+            gradient.addColorStop(0.9, 'rgba(255, 0, 0, 0.9)');
+            gradient.addColorStop(1, 'rgba(255, 0, 0, 0.8)');
+            ctx.strokeStyle = gradient;
+            ctx.shadowColor = 'rgba(255, 0, 0, 1)';
+            ctx.shadowBlur = 25;
+            ctx.lineWidth = 3;
+
+            ctx.beginPath();
+            ctx.moveTo(canvas.width / 2, canvas.height / 2);
+
+            angle = 0;
+            radius = 5;
+            for (let i = 0; i < maxIterations; i++) {
+                const x = canvas.width / 2 + radius * Math.cos(angle);
+                const y = canvas.height / 2 + radius * Math.sin(angle);
+                ctx.lineTo(x, y);
+                angle += angleIncrement;
+                radius += radiusIncrement;
+            }
+
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        // Rotación con el movimiento del mouse
+        canvas.addEventListener('mousemove', (event) => {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = event.clientX - rect.left;
+            const mouseY = event.clientY - rect.top;
+            const dx = mouseX - canvas.width / 2;
+            const dy = mouseY - canvas.height / 2;
+            rotationAngle = Math.atan2(dy, dx);
+            drawSpiral();
+        });
+
+        // Dibuja el espiral inicialmente
+        drawSpiral();
+
+        // Lista de frases aleatorias
+        const phrases = [
+            "V MENTIROSA",
+            "G HIPOCRITA",
+            "H MANIPULADORA",
+            "QUIERO JUGAR UN JUEGO",
+            "ADIOS A SU SHOW"
+        ];
+
+        // Función para mostrar una frase aleatoria durante 0.5 segundos
+        function showRandomPhrase() {
+            // Crear elemento de frase
+            const phraseElement = document.createElement("div");
+            phraseElement.classList.add("phrase");
+            phraseElement.innerText = phrases[Math.floor(Math.random() * phrases.length)];
+
+            // Posición aleatoria dentro de la ventana
+            phraseElement.style.left = Math.random() * (window.innerWidth - 200) + "px";
+            phraseElement.style.top = Math.random() * (window.innerHeight - 50) + "px";
+
+            // Agregar la frase al cuerpo
+            document.body.appendChild(phraseElement);
+
+            // Remover frase después de 0.5 segundos
+            setTimeout(() => {
+                phraseElement.remove();
+            }, 600); // Duración de 0.5 segundos
+        }
+
+        // Intervalo para mostrar una frase aleatoria cada 15 segundos
+        setInterval(() => {
+            showRandomPhrase();
+        }, 15000);
+    </script>
+</body>
+</html>
